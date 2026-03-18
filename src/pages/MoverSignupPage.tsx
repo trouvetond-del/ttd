@@ -1557,18 +1557,9 @@ export function MoverSignupPage({ onSuccess }: MoverSignupPageProps) {
                     <h3 className="text-lg font-semibold text-gray-900">
                       Coordonnées bancaires (RIB)
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      Pour recevoir vos paiements (10% escrow après validation des missions)
-                    </p>
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Important:</strong> Ces informations sont nécessaires pour vous verser les 10% de garantie 
-                    après chaque mission validée. Sans RIB valide, nous ne pourrons pas effectuer les virements.
-                  </p>
-                </div>
 
                 <div className="space-y-4">
                   <div>

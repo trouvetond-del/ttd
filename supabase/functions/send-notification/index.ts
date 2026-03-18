@@ -672,11 +672,6 @@ Deno.serve(async (req: Request) => {
               </ul>
             </div>
 
-            <div style="background:#fffbe6; padding:16px; border-radius:10px; border-left:4px solid #ffd700; margin-bottom:16px;">
-              <p style="color:#666; margin:0; font-size:14px;">
-                <strong>💰 Commission:</strong> 30% sur chaque paiement (versement immédiat de 10%, escrow de 20%)
-              </p>
-            </div>
 
             <div style="background:#dbeafe; padding:16px; border-radius:10px;">
               <p style="color:#666; margin:0; font-size:14px;">
