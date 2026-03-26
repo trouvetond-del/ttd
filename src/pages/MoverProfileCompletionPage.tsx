@@ -1204,12 +1204,6 @@ export default function MoverProfileCompletionPage() {
         <h3 className="text-lg font-semibold text-gray-900 mb-1 flex items-center gap-2">
           <Landmark className="w-5 h-5 text-blue-600" /> Coordonnées bancaires (RIB)
         </h3>
-        <p className="text-sm text-gray-500 mb-3">
-          Pour recevoir le remboursement de la garantie après chaque mission validée.
-        </p>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-800">
-          <strong>Important :</strong> Ces informations sont nécessaires pour vous verser la garantie (10%) après chaque mission validée. Sans RIB valide, nous ne pourrons pas effectuer les virements.
-        </div>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

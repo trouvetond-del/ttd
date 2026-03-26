@@ -32,7 +32,7 @@ const CALL_STATUS_CONFIG: Record<CallStatus, { label: string; color: string; ico
 const EMAIL_DELAY_MS = 600;
 const MAX_BULK_EMAILS = 50;
 
-export default function AdminClientProspects() {
+export default function AdminClientProspects({ adminRole = '' }: { adminRole?: string }) {
   const [prospects, setProspects] = useState<ClientProspect[]>([]);
   const [loading, setLoading] = useState(true);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -268,7 +268,7 @@ export default function AdminClientProspects() {
           <p className="text-sm text-gray-500 mt-1">Importez, appelez, et invitez des clients</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => exportProspects(false)} className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><Download className="w-4 h-4" /> Exporter tout</button>
+          {adminRole === 'super_admin' && <button onClick={() => exportProspects(false)} className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><Download className="w-4 h-4" /> Exporter tout</button>}
           <button onClick={fetchProspects} className="p-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><RefreshCw className="w-4 h-4" /></button>
           <button onClick={() => setShowImportModal(true)} className="flex items-center gap-2 px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700"><Upload className="w-4 h-4" /> Importer</button>
           <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"><UserPlus className="w-4 h-4" /> Ajouter</button>
@@ -312,10 +312,10 @@ export default function AdminClientProspects() {
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2 ml-auto">
               <span className="text-sm text-purple-600 font-medium">{selectedIds.size} sélectionné(s)</span>
-              <button onClick={() => exportProspects(true)}
+              {adminRole === 'super_admin' && <button onClick={() => exportProspects(true)}
                 className="flex items-center gap-2 px-4 py-1.5 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-100">
                 <Download className="w-3.5 h-3.5" /> Exporter
-              </button>
+              </button>}
               <button onClick={deleteSelectedProspects}
                 className="flex items-center gap-2 px-4 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
                 <Trash2 className="w-3.5 h-3.5" /> Supprimer

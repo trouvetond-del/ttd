@@ -98,7 +98,25 @@ export function ClientAuthChoice() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100">
+          
+
+          <div className="mt-8 bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">🎬 Découvrez TrouveTonDéménageur en vidéo</h3>
+              <p className="text-gray-600">Comprenez comment nous sécurisons votre déménagement</p>
+            </div>
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full rounded-xl"
+                src="https://www.youtube.com/embed/oBFzBZWohy4"
+                title="Présentation TrouveTonDéménageur"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+<div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-8 border border-blue-100">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl">
@@ -134,7 +152,6 @@ export function ClientAuthChoice() {
               </div>
             </div>
           </div>
-
           <div className="mt-8 text-center text-sm text-gray-500">
             <p>
               En créant un compte, vous acceptez nos{' '}

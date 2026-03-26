@@ -43,7 +43,7 @@ interface SystemSettings {
   maintenance_mode: boolean;
 }
 
-export default function AdminSystemSettings() {
+export default function AdminSystemSettings({ adminRole = '' }: { adminRole?: string }) {
   const navigate = useNavigate();
   const [settings, setSettings] = useState<SystemSettings>({
     commission_rate: 30,
@@ -256,6 +256,7 @@ export default function AdminSystemSettings() {
               <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition" />
             </button>
 
+            {adminRole === 'super_admin' && (
             <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
               <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
                 Mot de passe d'export des prospects
@@ -271,6 +272,7 @@ export default function AdminSystemSettings() {
                 placeholder="Mot de passe d'export..."
               />
             </div>
+            )}
           </div>
         </div>
 

@@ -123,32 +123,48 @@ function validateAndParse(rows: Record<string, any>[]): ValidationResult {
 
   for (const row of rows) {
     const reasons: string[] = [];
-    const g = (keys: string[]) => keys.reduce((v, k) => v || (row[k] || '').toString().trim(), '');
+    // Case-insensitive, accent-insensitive column getter
+    const g = (keys: string[]) => {
+      for (const k of keys) {
+        if (row[k] !== undefined && row[k] !== '') return (row[k] || '').toString().trim();
+      }
+      // Fallback: try case-insensitive match against all row keys
+      const rowKeys = Object.keys(row);
+      for (const k of keys) {
+        const kLower = k.toLowerCase().replace(/[_\s]/g, '');
+        for (const rk of rowKeys) {
+          const rkLower = rk.toLowerCase().replace(/[_\s]/g, '');
+          if (rkLower === kLower && row[rk] !== undefined && row[rk] !== '') {
+            return (row[rk] || '').toString().trim();
+          }
+        }
+      }
+      return '';
+    };
 
-    const rawEmail = g(['EMAIL', 'email']);
+    const rawEmail = g(['EMAIL', 'email', 'Email', 'E-mail', 'e-mail', 'ADRESSE_EMAIL', 'adresse_email']);
     const email = rawEmail.toLowerCase();
-    const companyName = g(['RAISON_SOCIALE', 'raison_sociale']);
-    const rawSiret = g(['SIRET', 'siret']);
+    const companyName = g(['RAISON_SOCIALE', 'raison_sociale', 'Raison sociale', 'Raison_sociale', 'RAISON SOCIALE', 'Entreprise', 'entreprise', 'ENTREPRISE', 'Société', 'societe', 'SOCIETE', 'company_name']);
+    const rawSiret = g(['SIRET', 'siret', 'Siret', 'N_SIRET', 'n_siret', 'Numéro SIRET']);
     const siret = normalizeSiret(rawSiret);
-    const phone = normalizePhone(g(['TELEPHONE', 'telephone']));
-    const mobile = normalizePhone(g(['MOBILE', 'mobile']));
-    const address = g(['ADRESSE', 'adresse']);
-    const postalCode = g(['CODE_POSTAL', 'code_postal']);
-    const city = g(['VILLE', 'ville']);
-    const department = g(['NOM_DEPARTEMENT', 'nom_departement']);
-    const activity = g(['ACTIVITE', 'activite']);
-    const dirigeants = g(['DIRIGEANTS', 'dirigeants']);
+    const phone = normalizePhone(g(['TELEPHONE', 'telephone', 'Téléphone', 'Tel', 'tel', 'TEL', 'Phone', 'phone', 'PHONE']));
+    const mobile = normalizePhone(g(['MOBILE', 'mobile', 'Mobile', 'Portable', 'portable', 'PORTABLE', 'GSM', 'gsm']));
+    const address = g(['ADRESSE', 'adresse', 'Adresse', 'ADDRESS', 'address']);
+    const postalCode = g(['CODE_POSTAL', 'code_postal', 'Code postal', 'Code_postal', 'CP', 'cp']);
+    const city = g(['VILLE', 'ville', 'Ville', 'City', 'city', 'CITY']);
+    const department = g(['NOM_DEPARTEMENT', 'nom_departement', 'Département', 'departement', 'DEPARTEMENT']);
+    const activity = g(['ACTIVITE', 'activite', 'Activité', 'ACTIVITE']);
+    const dirigeants = g(['DIRIGEANTS', 'dirigeants', 'Dirigeant', 'dirigeant', 'DIRIGEANT', 'Gérant', 'gerant', 'GERANT']);
 
-    // Only 3 required fields now
-    if (!email) reasons.push('EMAIL manquant');
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) reasons.push('EMAIL invalide');
-    else if (seenEmails.has(email)) reasons.push('EMAIL en doublon dans le fichier');
+    // Required: RAISON_SOCIALE + TELEPHONE (email and siret are optional now)
     if (!companyName) reasons.push('RAISON_SOCIALE manquante');
-    if (!siret) reasons.push('SIRET manquant');
+    if (!phone && !mobile) reasons.push('TELEPHONE manquant');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) reasons.push('EMAIL invalide');
+    if (email && seenEmails.has(email)) reasons.push('EMAIL en doublon dans le fichier');
 
     if (reasons.length > 0) { rejected.push({ row, reasons }); continue; }
 
-    seenEmails.add(email);
+    if (email) seenEmails.add(email);
     const { firstname, lastname } = parseDirigeants(dirigeants);
     const hasPhone = !!(phone || mobile);
 
@@ -224,16 +240,24 @@ export default function ImportMoversModal({ onClose, onImportComplete }: ImportM
       if (!adminCheck) { showToast('Permissions insuffisantes', 'error'); setImporting(false); return; }
 
       // Check ALL existing emails: prospects + movers + auth users (case-insensitive)
-      const emails = validationResult.valid.map(m => m.email); // already lowercase from validateAndParse
-      const { data: ep } = await supabase.from('mover_prospects').select('email').in('email', emails);
-      const { data: em } = await supabase.from('movers').select('email').in('email', emails);
-      const { data: authEmails } = await supabase.rpc('check_existing_auth_emails', { email_list: emails });
-      const existingEmails = new Set([
-        ...(ep || []).map(p => p.email.toLowerCase()),
-        ...(em || []).map(m => m.email.toLowerCase()),
-        ...(authEmails || []).map((r: { email: string }) => r.email.toLowerCase()),
-      ]);
-      const toInsert = validationResult.valid.filter(m => { if (existingEmails.has(m.email)) { duplicateCount++; return false; } return true; });
+      // Only check duplicates for prospects that have an email
+      const emails = validationResult.valid.map(m => m.email).filter(e => e);
+      let existingEmails = new Set<string>();
+      if (emails.length > 0) {
+        const { data: ep } = await supabase.from('mover_prospects').select('email').in('email', emails);
+        const { data: em } = await supabase.from('movers').select('email').in('email', emails);
+        let authEmailsData: any[] = [];
+        try {
+          const { data: authEmails } = await supabase.rpc('check_existing_auth_emails', { email_list: emails });
+          authEmailsData = authEmails || [];
+        } catch { /* rpc may not exist */ }
+        existingEmails = new Set([
+          ...(ep || []).map(p => p.email.toLowerCase()),
+          ...(em || []).map(m => m.email.toLowerCase()),
+          ...authEmailsData.map((r: { email: string }) => r.email.toLowerCase()),
+        ]);
+      }
+      const toInsert = validationResult.valid.filter(m => { if (m.email && existingEmails.has(m.email)) { duplicateCount++; return false; } return true; });
 
       if (toInsert.length === 0) {
         setImportResult({ success: 0, duplicates: duplicateCount, errors: [] });
@@ -265,7 +289,7 @@ export default function ImportMoversModal({ onClose, onImportComplete }: ImportM
     } catch (error: any) { showToast(`Erreur: ${error.message}`, 'error'); } finally { setImporting(false); }
   };
 
-  const requiredCols = ['RAISON_SOCIALE', 'EMAIL', 'SIRET'];
+  const requiredCols = ['RAISON_SOCIALE', 'TELEPHONE'];
   const optionalCols = ['TELEPHONE', 'MOBILE', 'DIRIGEANTS', 'ADRESSE', 'CODE_POSTAL', 'VILLE', 'NOM_DEPARTEMENT', 'ACTIVITE', 'NOM_REGION'];
 
   return (

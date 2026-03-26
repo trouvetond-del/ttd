@@ -237,9 +237,7 @@ export default function MoverInviteSignupPage() {
             <div className="border-t border-gray-200 pt-5">
               <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center gap-2"><Landmark className="w-4 h-4 text-blue-600" /> Coordonnées bancaires (RIB)</h3>
               <p className="text-xs text-gray-500 mb-3">Pour recevoir le remboursement de la garantie après chaque mission validée.</p>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-xs text-blue-800">
-                <strong>Important :</strong> Ces informations sont nécessaires pour vous verser la garantie (10%) après chaque mission validée. Sans RIB valide, nous ne pourrons pas effectuer les virements.
-              </div>
+              
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">IBAN <span className="text-red-500">*</span></label>

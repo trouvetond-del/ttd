@@ -213,9 +213,9 @@ export default function AdminDashboard() {
       case 'mover_search':
         return <AdminMoverSearch />;
       case 'prospects':
-        return <AdminMoverProspects />;
+        return <AdminMoverProspects adminRole={adminRole} />;
       case 'client_prospects':
-        return <AdminClientProspects />;
+        return <AdminClientProspects adminRole={adminRole} />;
       case 'pending_movers':
         return <AdminPendingMovers />;
       case 'recent_quotes':
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
           onClearFilter={() => setDisputeQuoteRequestId(null)}
         />;
       case 'settings':
-        return <AdminSystemSettings />;
+        return <AdminSystemSettings adminRole={adminRole} />;
       case 'help':
         return <AdminHelpSupport
           onNavigateToUsers={() => handleNavigateToUsers('all', 'all')}

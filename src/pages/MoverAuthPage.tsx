@@ -305,6 +305,23 @@ export function MoverAuthPage() {
           </div>
         </div>
 
+        <div className="mt-8 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">🎬 Découvrez TrouveTonDéménageur en vidéo</h3>
+            <p className="text-gray-600">Comprenez comment la plateforme peut booster votre activité</p>
+          </div>
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-xl"
+              src="https://www.youtube.com/embed/Gtgm4INvUO4"
+              title="Présentation TrouveTonDéménageur pour les déménageurs"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+        
         <div className="mt-12 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
           <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             Pourquoi rejoindre TrouveTonDemenageur ?

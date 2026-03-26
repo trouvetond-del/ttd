@@ -85,6 +85,12 @@ Deno.serve(async (req: Request) => {
               <a href="${invitationUrl}" class="button">Finaliser mon inscription →</a>
             </div>
 
+            <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <p style="margin: 0 0 8px;"><strong>🎬 Découvrez TTD en vidéo</strong></p>
+              <p style="margin: 0 0 10px; font-size: 14px; color: #92400E;">Regardez notre présentation pour comprendre comment fonctionne la plateforme et comment maximiser vos revenus :</p>
+              <a href="https://www.youtube.com/watch?v=Gtgm4INvUO4" style="display: inline-block; background: #EF4444; color: white !important; padding: 10px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">▶ Voir la vidéo de présentation</a>
+            </div>
+
             <div class="highlight-box">
               <p style="margin: 0;"><strong>💡 Pourquoi rejoindre TrouveTonDemenageur ?</strong></p>
               <ul style="margin: 10px 0 0; padding-left: 20px;">

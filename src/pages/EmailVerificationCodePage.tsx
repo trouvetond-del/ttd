@@ -101,22 +101,30 @@ export function EmailVerificationCodePage() {
       }
 
       if (data.session && data.user) {
+        // Get profile data from state OR from user metadata (in case state was lost)
+        const metadata = data.user.user_metadata || {};
+        const profileInfo = profileDataFromState || (
+          metadata.first_name && metadata.last_name && metadata.phone
+            ? { firstName: metadata.first_name, lastName: metadata.last_name, phone: metadata.phone }
+            : null
+        );
+
         // Créer le client maintenant que l'utilisateur est authentifié
         await createClientRecord(data.user.id, data.user.email || email);
         
-        // If profile data was passed, save it now
-        if (profileDataFromState) {
+        // Save profile data if available (from state or metadata)
+        if (profileInfo) {
           await supabase.auth.updateUser({
             data: {
-              first_name: profileDataFromState.firstName,
-              last_name: profileDataFromState.lastName,
-              phone: profileDataFromState.phone,
+              first_name: profileInfo.firstName,
+              last_name: profileInfo.lastName,
+              phone: profileInfo.phone,
             }
           });
           await supabase.from('clients').update({
-            first_name: profileDataFromState.firstName,
-            last_name: profileDataFromState.lastName,
-            phone: profileDataFromState.phone,
+            first_name: profileInfo.firstName,
+            last_name: profileInfo.lastName,
+            phone: profileInfo.phone,
           }).eq('user_id', data.user.id);
         }
         
@@ -124,7 +132,7 @@ export function EmailVerificationCodePage() {
         showToast('Email vérifié avec succès !', 'success');
         
         setTimeout(() => {
-          navigate(profileDataFromState ? '/client/dashboard' : '/client/profile-completion');
+          navigate(profileInfo ? '/client/dashboard' : '/client/profile-completion');
         }, 2000);
       }
     } catch (err: any) {
@@ -244,8 +252,13 @@ export function EmailVerificationCodePage() {
               <p className="text-sm text-blue-700">
                 Un code à 8 chiffres a été envoyé à{' '}
                 <strong>{email || 'votre adresse email'}</strong>.
-                Vérifiez votre boîte de réception et vos spams.
+                Vérifiez votre boîte de réception.
               </p>
+              <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-2">
+                <p className="text-xs text-amber-800 font-medium">
+                  ⚠️ Si vous ne trouvez pas l'email, vérifiez votre dossier <strong>spam / courrier indésirable</strong>. L'email provient de noreply@trouvetondemenageur.fr.
+                </p>
+              </div>
             </div>
 
             <form onSubmit={handleVerifyCode} className="space-y-6">

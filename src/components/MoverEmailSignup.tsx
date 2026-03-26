@@ -121,7 +121,7 @@ export default function MoverEmailSignup({ onSuccess }: MoverEmailSignupProps) {
       // Check if email verification is enabled
       if (emailVerificationEnabled) {
         showToast(
-          '✉️ Email de vérification envoyé ! Veuillez vérifier votre boîte de réception.',
+          '✉️ Email de vérification envoyé ! Vérifiez votre boîte de réception et vos spams.',
           'success'
         );
 
@@ -303,8 +303,26 @@ export default function MoverEmailSignup({ onSuccess }: MoverEmailSignupProps) {
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">🎬 Découvrez TrouveTonDéménageur en vidéo</h3>
+              <p className="text-sm text-gray-600">Comprenez comment la plateforme peut booster votre activité</p>
+            </div>
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full rounded-xl"
+                src="https://www.youtube.com/embed/Gtgm4INvUO4"
+                title="Présentation TrouveTonDéménageur pour les déménageurs"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-gray-200">
             <p className="text-xs text-gray-500 text-center">
               Après avoir créé votre compte, vous recevrez un email de vérification.
+              ⚠️ Pensez à vérifier votre dossier <strong>spam / courrier indésirable</strong> si vous ne le recevez pas.
               Une fois votre email vérifié, vous pourrez compléter votre profil et uploader vos documents.
             </p>
           </div>

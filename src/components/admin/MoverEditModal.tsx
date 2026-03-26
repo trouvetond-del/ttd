@@ -551,7 +551,7 @@ export function MoverEditModal({ moverId, onClose, onUpdate }: MoverEditModalPro
           {activeTab === 'bank' && (
             <div className="space-y-6">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
-                <strong>Coordonnées bancaires (RIB)</strong> — Ces informations sont nécessaires pour verser la garantie (10%) au déménageur après chaque mission validée.
+                <strong>Coordonnées bancaires (RIB)</strong>
               </div>
 
               <div>
