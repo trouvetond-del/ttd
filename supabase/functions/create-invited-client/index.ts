@@ -13,7 +13,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { email, password, firstname, lastname, phone, token } = await req.json();
+    const { email, password, firstname, lastname, phone, token, quoteData } = await req.json();
 
     if (!email || !password || !token) {
       return new Response(
@@ -135,6 +135,69 @@ Deno.serve(async (req: Request) => {
       invitation_status: "signed_up",
       user_id: userId,
     }).eq("id", prospect.id);
+
+    // 5b. Create quote_request if prospect has initial_quote_data
+    let quoteRequestId: string | null = null;
+    // Use quoteData sent from the client (the user may have edited it) — fall back to the
+    // stored initial_quote_data only if the client sent nothing.
+    const effectiveQuoteData = quoteData || prospect.initial_quote_data;
+    if (effectiveQuoteData && prospect.inscription_type === 'with_quote') {
+      const qd = effectiveQuoteData;
+      // Persist the (possibly edited) quote data so the record is up to date
+      try { await supabase.from('client_prospects').update({ initial_quote_data: qd }).eq('id', prospect.id); } catch (e) { console.error('Failed to persist quoteData update:', e); }
+      const clientName = [firstname || prospect.firstname, lastname || prospect.lastname].filter(Boolean).join(" ") || email;
+      
+      const { data: qr, error: qrError } = await supabase.from("quote_requests").insert({
+        client_user_id: userId,
+        client_name: clientName,
+        client_email: email,
+        client_phone: phone || prospect.phone || '',
+        from_address: qd.from_address || '',
+        from_city: qd.from_city || '',
+        from_postal_code: qd.from_postal_code || '',
+        from_latitude: qd.from_latitude ?? null,
+        from_longitude: qd.from_longitude ?? null,
+        from_home_size: qd.from_home_size || null,
+        from_home_type: qd.from_home_type || null,
+        from_surface_m2: qd.from_surface_m2 ?? null,
+        to_address: qd.to_address || '',
+        to_city: qd.to_city || '',
+        to_postal_code: qd.to_postal_code || '',
+        to_latitude: qd.to_latitude ?? null,
+        to_longitude: qd.to_longitude ?? null,
+        to_home_size: qd.to_home_size || null,
+        to_home_type: qd.to_home_type || null,
+        to_surface_m2: qd.to_surface_m2 ?? null,
+        moving_date: qd.moving_date || null,
+        floor_from: qd.floor_from ?? null,
+        floor_to: qd.floor_to ?? null,
+        elevator_from: qd.elevator_from ?? null,
+        elevator_capacity_from: qd.elevator_capacity_from || null,
+        elevator_to: qd.elevator_to ?? null,
+        elevator_capacity_to: qd.elevator_capacity_to || null,
+        furniture_lift_needed_departure: qd.furniture_lift_needed_departure ?? null,
+        furniture_lift_needed_arrival: qd.furniture_lift_needed_arrival ?? null,
+        carrying_distance_from: qd.carrying_distance_from || null,
+        carrying_distance_to: qd.carrying_distance_to || null,
+        volume_m3: qd.volume_m3 ?? null,
+        formula: qd.formula || null,
+        services_needed: qd.services_needed || [],
+        accepts_groupage: qd.accepts_groupage ?? false,
+        additional_info: qd.additional_info || '',
+        distance_km: qd.distance_km ?? null,
+        status: 'new',
+        created_by_admin: true,
+        admin_created_status: 'confirmed',
+        prospect_id: prospect.id,
+      }).select('id').single();
+
+      if (qrError) {
+        console.error("Error creating quote_request:", qrError);
+      } else {
+        quoteRequestId = qr?.id || null;
+        console.log("Created quote_request from initial_quote_data:", quoteRequestId);
+      }
+    }
 
     // 6. Notify all admins
     try {

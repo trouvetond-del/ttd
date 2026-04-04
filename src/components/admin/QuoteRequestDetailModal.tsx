@@ -34,6 +34,7 @@ export default function QuoteRequestDetailModal({ quoteRequestId, onClose, onSav
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [showVolumeCalculator, setShowVolumeCalculator] = useState(false);
   const [distance, setDistance] = useState<number | null>(null);
+  const [distanceDuration, setDistanceDuration] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
 
   const canEdit = !readOnly || isEditing;
@@ -89,6 +90,8 @@ export default function QuoteRequestDetailModal({ quoteRequestId, onClose, onSav
       if (result.rows[0]?.elements[0]?.distance) {
         const distanceInKm = Math.round(result.rows[0].elements[0].distance.value / 1000);
         setDistance(distanceInKm);
+        const durationText = result.rows[0]?.elements[0]?.duration?.text || '';
+        setDistanceDuration(durationText);
       }
     } catch (error) {
       console.error('Error calculating distance:', error);
@@ -672,13 +675,24 @@ export default function QuoteRequestDetailModal({ quoteRequestId, onClose, onSav
             </div>
           </div>
 
-          {distance && (
+          {(formData.distance_km != null || distance != null) && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center gap-3">
                 <Navigation className="w-5 h-5 text-blue-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Distance estimée</p>
-                  <p className="text-2xl font-bold text-blue-600">{distance} km</p>
+                  <p className="text-sm font-medium text-gray-700">Distance du trajet</p>
+                  <div className="flex items-center gap-3 mt-0.5">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {formData.distance_km != null
+                        ? `${Number(formData.distance_km).toFixed(1)} km`
+                        : `${distance} km`}
+                    </p>
+                    {distanceDuration && (
+                      <span className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-full px-2.5 py-0.5">
+                        ⏱ {distanceDuration}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

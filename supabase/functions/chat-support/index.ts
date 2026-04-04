@@ -40,7 +40,7 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({
           error: "AI service not configured",
           response:
-            "Notre assistant IA est temporairement indisponible. Veuillez réessayer plus tard ou contactez-nous au 01 234 567 89.",
+            "Notre assistant IA est temporairement indisponible. Veuillez réessayer plus tard ou contactez-nous au 01 89 70 78 81.",
         }),
         {
           status: 200, // Return 200 so frontend can use the fallback message
@@ -108,7 +108,7 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({
           error: "AI service error",
           response:
-            "Notre assistant rencontre un problème technique. Veuillez réessayer dans quelques instants ou contactez-nous directement au 01 234 567 89.",
+            "Notre assistant rencontre un problème technique. Veuillez réessayer dans quelques instants ou contactez-nous directement au 01 89 70 78 81.",
         }),
         {
           status: 200,
@@ -120,7 +120,7 @@ Deno.serve(async (req: Request) => {
     const data = await openaiResponse.json();
     const assistantMessage =
       data.choices?.[0]?.message?.content ||
-      "Je suis désolé, je n'ai pas pu générer de réponse. Contactez notre support au 01 234 567 89.";
+      "Je suis désolé, je n'ai pas pu générer de réponse. Contactez notre support au 01 89 70 78 81.";
 
     // Server-side safety: check if OpenAI accidentally leaked commission info
     const responseText = assistantMessage.toLowerCase();
@@ -149,7 +149,7 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         error: "Internal error",
         response:
-          "Une erreur s'est produite. Veuillez réessayer ou contactez-nous au 01 234 567 89.",
+          "Une erreur s'est produite. Veuillez réessayer ou contactez-nous au 01 89 70 78 81.",
       }),
       {
         status: 200,

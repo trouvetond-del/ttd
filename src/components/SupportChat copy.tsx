@@ -106,7 +106,7 @@ Tu aides les visiteurs et utilisateurs de la plateforme à comprendre nos servic
 - Au-delà, des frais peuvent s'appliquer selon les conditions du déménageur
 
 ### Contact :
-- Téléphone : 01 234 567 89 (Lun-Ven 9h-19h, Sam 9h-17h)
+- Téléphone : 01 89 70 78 81 (Lun-Ven 9h-19h, Sam 9h-17h)
 - Email : support@trouvetondemenageur.fr (réponse sous 24h)
 - Chat en direct : disponible 7j/7
 - Réseaux sociaux : Instagram (@trouvetondemenageur), TikTok, YouTube
@@ -122,7 +122,7 @@ Tu aides les visiteurs et utilisateurs de la plateforme à comprendre nos servic
 
 2. **NE JAMAIS répondre à des questions hors-sujet** qui ne concernent pas le déménagement, la plateforme TTD, ou des sujets directement liés. Si quelqu'un te pose des questions sur la politique, le sport, la programmation, la cuisine, les maths, etc., rappelle gentiment que tu es spécialisé dans l'aide au déménagement et les services TTD.
 
-3. **NE JAMAIS inventer d'informations.** Si tu ne connais pas la réponse, oriente vers le support (support@trouvetondemenageur.fr ou 01 234 567 89).
+3. **NE JAMAIS inventer d'informations.** Si tu ne connais pas la réponse, oriente vers le support (support@trouvetondemenageur.fr ou 01 89 70 78 81).
 
 4. **NE JAMAIS partager des détails techniques internes** (stack technique, architecture, base de données, noms d'admin, mots de passe, clés API, etc.)
 
@@ -244,7 +244,7 @@ export function SupportChat({ isOpen: controlledIsOpen, onClose, hideButton = fa
       return "Modification ou annulation gratuite jusqu'à 48h avant la date prévue. Au-delà, des frais peuvent s'appliquer selon les conditions du déménageur.";
     }
     if (lower.includes('contact') || lower.includes('joindre') || lower.includes('téléphone') || lower.includes('email')) {
-      return "📞 01 234 567 89 (Lun-Ven 9h-19h, Sam 9h-17h) | 📧 support@trouvetondemenageur.fr (réponse sous 24h) | 💬 Ce chat est disponible 7j/7!";
+      return "📞 01 89 70 78 81 (Lun-Ven 9h-19h, Sam 9h-17h) | 📧 support@trouvetondemenageur.fr (réponse sous 24h) | 💬 Ce chat est disponible 7j/7!";
     }
     if (lower.includes('comment') && (lower.includes('marche') || lower.includes('fonctionne'))) {
       return "C'est simple ! 1️⃣ Décrivez votre déménagement, 2️⃣ Recevez jusqu'à 3 devis de pros vérifiés sous 24h, 3️⃣ Comparez et choisissez, 4️⃣ Paiement sécurisé, 5️⃣ Déménagement protégé par notre IA!";
@@ -256,7 +256,7 @@ export function SupportChat({ isOpen: controlledIsOpen, onClose, hideButton = fa
       return "De rien! N'hésitez pas si vous avez d'autres questions. Bon déménagement! 🚚";
     }
 
-    return "Je suis spécialisé dans le déménagement et les services TrouveTonDéménageur. Posez-moi des questions sur les devis, tarifs, assurances, inscription déménageur, ou le fonctionnement de la plateforme! Pour toute autre question : 01 234 567 89 ou support@trouvetondemenageur.fr.";
+    return "Je suis spécialisé dans le déménagement et les services TrouveTonDéménageur. Posez-moi des questions sur les devis, tarifs, assurances, inscription déménageur, ou le fonctionnement de la plateforme! Pour toute autre question : 01 89 70 78 81 ou support@trouvetondemenageur.fr.";
   };
 
   const handleUserMessage = async (text: string) => {

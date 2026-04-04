@@ -240,7 +240,7 @@ export function HelpCenterPage() {
                       <Phone className="w-6 h-6 text-blue-600" />
                     </div>
                     <h4 className="font-bold text-gray-900 mb-2">Téléphone</h4>
-                    <p className="text-gray-700 font-semibold mb-1">01 234 567 89</p>
+                    <p className="text-gray-700 font-semibold mb-1">01 89 70 78 81</p>
                     <p className="text-sm text-gray-600">Lun-Ven : 9h-19h</p>
                   </div>
                   <div className="bg-white rounded-xl p-6 shadow-lg">
@@ -269,7 +269,7 @@ export function HelpCenterPage() {
               </div>
               <h3 className="font-bold text-gray-900 mb-2">Urgence</h3>
               <p className="text-gray-600 text-sm mb-3">Pour les situations urgentes</p>
-              <p className="text-blue-600 font-bold">01 234 567 89</p>
+              <p className="text-blue-600 font-bold">01 89 70 78 81</p>
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-lg text-center">

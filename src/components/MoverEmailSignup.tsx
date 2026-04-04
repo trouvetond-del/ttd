@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { showToast } from '../utils/toast';
 import { isEmailVerificationEnabled } from '../utils/emailVerification';
@@ -167,6 +167,14 @@ export default function MoverEmailSignup({ onSuccess }: MoverEmailSignupProps) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 px-4">
       <div className="max-w-md w-full">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center space-x-2 text-gray-600 hover:text-orange-600 transition mb-6 bg-gray-100 hover:bg-orange-50 px-4 py-2 rounded-lg"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Retour</span>
+          </button>
+
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">

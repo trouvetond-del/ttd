@@ -1,35 +1,46 @@
-import { Truck, LogIn, Shield, Camera, FileCheck, CheckCircle, ArrowRight, Sparkles, Star, Award, Zap, Phone, Mail, MessageCircle, Facebook, Twitter, Linkedin, Instagram, Youtube } from 'lucide-react';
+import { Truck, LogIn, Shield, Camera, FileCheck, CheckCircle, ArrowRight, Sparkles, Star, Award, Zap, Phone, Mail, MessageCircle, Facebook, Twitter, Linkedin, Instagram, Youtube, Users, Building2, ChevronRight } from 'lucide-react';
 import { SupportChat } from '../components/SupportChat';
 import { Logo } from '../components/Logo';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export function LandingPage() {
   const [showSupportChat, setShowSupportChat] = useState(false);
   const navigate = useNavigate();
+  const howItWorksRef = useRef<HTMLDivElement>(null);
+
+  const scrollToHowItWorks = () => {
+    howItWorksRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div className="glass-effect border-b border-white/20">
-<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -my-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -my-4">
             <div className="flex items-center justify-between">
               <div className="animate-slideInLeft">
                 <img src="/ttd-logo.png" alt="TrouveTonDemenageur" className="h-32 sm:h-36" />
               </div>
-              <div className="flex items-center space-x-2 sm:space-x-3 animate-slideInRight">
+              <div className="flex items-center space-x-1 sm:space-x-2 animate-slideInRight">
+                <button
+                  onClick={scrollToHowItWorks}
+                  className="hidden md:flex items-center space-x-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm"
+                >
+                  <span>Comment ca marche</span>
+                </button>
                 <button
                   onClick={() => navigate('/client/auth-choice')}
-                  className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-2.5 text-gray-700 hover:text-blue-600 transition-all duration-300 rounded-lg hover:bg-white/50"
+                  className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm sm:text-base"
                 >
                   <LogIn className="w-4 h-4" />
-                  <span className="font-medium text-sm sm:text-base">Connexion</span>
+                  <span>Espace Client</span>
                 </button>
                 <button
                   onClick={() => navigate('/mover/login')}
                   className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm sm:text-base"
                 >
-                  <span>Espace Pro</span>
+                  <span>Espace Demenageur</span>
                 </button>
               </div>
             </div>
@@ -40,9 +51,9 @@ export function LandingPage() {
       <section
         className="relative min-h-screen flex items-center overflow-hidden pt-20"
         style={{
-          backgroundImage: 'url(https://images.pexels.com/photos/7464230/pexels-photo-7464230.jpeg?auto=compress&cs=tinysrgb&w=1920)',
+          backgroundImage: "url(/Capture_d'écran_2026-03-31_à_20.09.20.png)",
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center 30%',
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900/75 via-blue-900/70 to-slate-800/75"></div>
@@ -53,74 +64,45 @@ export function LandingPage() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="max-w-4xl">
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-md px-6 py-3 rounded-full mb-8 animate-fadeIn border border-blue-400/30 shadow-lg">
-              <Sparkles className="w-5 h-5 text-blue-300 animate-pulse" />
-              <span className="text-sm font-bold tracking-wide text-blue-50">IA de Protection Avancée</span>
-            </div>
-
+          <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[1.1] animate-fadeInUp">
-              <span className="block text-white mb-3 drop-shadow-2xl">Votre déménagement,</span>
+              <span className="block text-white mb-3 drop-shadow-2xl">Déménagez sereinement.</span>
               <span className="block bg-gradient-to-r from-emerald-300 via-cyan-200 to-blue-300 bg-clip-text text-transparent drop-shadow-lg">
-                100% sécurisé par l'IA
+                Vos affaires protégées par l'IA
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-blue-50/95 mb-12 leading-relaxed max-w-2xl animate-fadeInUp font-normal" style={{ animationDelay: '0.2s' }}>
-              <span className="font-bold text-white">Zéro stress. Zéro litige.</span> La première plateforme qui protège réellement clients et déménageurs avec une intelligence artificielle impartiale.
+            <p className="text-xl md:text-2xl text-blue-50/95 mb-12 leading-relaxed max-w-2xl mx-auto animate-fadeInUp font-normal" style={{ animationDelay: '0.2s' }}>
+              La seule plateforme française qui analyse vos photos de déménagement pour protéger les clients et les pros des litiges grâce à une intelligence artificielle impartiale.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-5 mb-12 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+            <div className="flex justify-center mb-12 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
               <button
                 onClick={() => navigate('/client/auth-choice')}
-                className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 text-white px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center justify-center space-x-3 shadow-2xl hover:shadow-emerald-500/50"
+                className="group relative overflow-hidden bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 text-white px-14 py-6 rounded-2xl font-bold text-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center justify-center space-x-3 shadow-2xl hover:shadow-emerald-500/50"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative">Devis gratuit en 2 min</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative" />
-              </button>
-              <button
-                onClick={() => navigate('/mover/signup')}
-                className="glass-effect text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/20 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center justify-center space-x-3 border-2 border-white/40 backdrop-blur-xl"
-              >
-                <Award className="w-5 h-5" />
-                <span>Devenir partenaire</span>
+                <span className="relative">Obtenir mon estimation gratuite</span>
+                <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform relative" />
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-8 max-w-2xl animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
-              <div className="text-center">
-                <div className="text-4xl font-black mb-1 text-blue-300">2 847</div>
-                <div className="text-blue-100 text-sm font-medium">Déménagements protégés</div>
-              </div>
-              <div className="text-center border-x border-white/20">
-                <div className="text-4xl font-black mb-1 flex items-center justify-center gap-1 text-blue-300">
-                  4.8<span className="text-lg">/5</span>
-                  <Star className="w-5 h-5 fill-yellow-300 text-yellow-300" />
-                </div>
-                <div className="text-blue-100 text-sm font-medium">Satisfaction client</div>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl font-black mb-1 text-blue-300">157</div>
-                <div className="text-blue-100 text-sm font-medium">Pros certifiés IA</div>
-              </div>
-            </div>
 
-            <div className="mt-12 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 backdrop-blur-md p-5 rounded-2xl border border-blue-400/30 max-w-3xl animate-fadeInUp shadow-xl" style={{ animationDelay: '0.8s' }}>
-              <div className="flex items-center gap-4 text-sm text-white font-medium">
+            <div className="mt-12 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 backdrop-blur-md p-5 rounded-2xl border border-blue-400/30 max-w-3xl mx-auto animate-fadeInUp shadow-xl" style={{ animationDelay: '0.8s' }}>
+              <div className="flex items-center justify-center gap-4 text-sm text-white font-medium">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-blue-300" />
-                  <span>Analyse IA instantanée</span>
+                  <span>Analyse photo par IA</span>
                 </div>
                 <div className="w-px h-4 bg-white/20"></div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-blue-300" />
-                  <span>Arbitrage automatique</span>
+                  <span>Arbitrage impartial</span>
                 </div>
                 <div className="w-px h-4 bg-white/20 hidden sm:block"></div>
                 <div className="flex items-center gap-2 hidden sm:flex">
                   <CheckCircle className="w-5 h-5 text-blue-300" />
-                  <span>Protection juridique</span>
+                  <span>Zéro litige</span>
                 </div>
               </div>
             </div>
@@ -130,7 +112,84 @@ export function LandingPage() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 to-transparent"></div>
       </section>
 
-      <section className="py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+      <section ref={howItWorksRef} className="py-24 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-100/20 rounded-full blur-3xl"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16 animate-fadeInUp">
+            <div className="inline-flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-full mb-6">
+              <Zap className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-bold text-blue-700 tracking-wide">CONFIANCE GARANTIE</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
+              Un tiers de confiance<br />
+              <span className="gradient-text">entre vous et votre déménageur</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light leading-relaxed">
+              Nous sélectionnons, vérifions et encadrons chaque professionnel. Vous déménagez, nous sécurisons.
+            </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4 mb-16 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-col items-center text-center bg-white rounded-3xl p-8 shadow-xl border border-gray-100 w-full md:w-80 hover-lift transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-5 shadow-lg">
+                <Users className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Vous</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">Décrivez votre projet en quelques clics. Volume, adresses, date : c'est tout.</p>
+            </div>
+
+            <div className="hidden md:flex items-center">
+              <div className="w-16 h-0.5 bg-gradient-to-r from-blue-300 to-cyan-400"></div>
+              <ChevronRight className="w-6 h-6 text-cyan-500 -mx-1" />
+            </div>
+            <div className="md:hidden flex flex-col items-center">
+              <div className="w-0.5 h-8 bg-gradient-to-b from-blue-300 to-cyan-400"></div>
+              <ChevronRight className="w-6 h-6 text-cyan-500 rotate-90 -my-1" />
+            </div>
+
+            <div className="flex flex-col items-center text-center bg-gradient-to-br from-slate-900 to-blue-900 rounded-3xl p-8 shadow-2xl border border-blue-800 w-full md:w-80 hover-lift transition-all duration-300 relative">
+              <div className="absolute -top-3 -right-3 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Certifié</div>
+              <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-full flex items-center justify-center mb-5 shadow-lg">
+                <span className="text-white font-black text-lg">TTD</span>
+                <span className="text-white/80 text-xs">.fr</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">TrouveTonDemenageur</h3>
+              <p className="text-blue-200 text-sm leading-relaxed">Vérifie, accompagne et arbitre. Avant, pendant et après.</p>
+            </div>
+
+            <div className="hidden md:flex items-center">
+              <div className="w-16 h-0.5 bg-gradient-to-r from-cyan-400 to-green-400"></div>
+              <ChevronRight className="w-6 h-6 text-green-500 -mx-1" />
+            </div>
+            <div className="md:hidden flex flex-col items-center">
+              <div className="w-0.5 h-8 bg-gradient-to-b from-cyan-400 to-green-400"></div>
+              <ChevronRight className="w-6 h-6 text-green-500 rotate-90 -my-1" />
+            </div>
+
+            <div className="flex flex-col items-center text-center bg-white rounded-3xl p-8 shadow-xl border border-gray-100 w-full md:w-80 hover-lift transition-all duration-300">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-5 shadow-lg">
+                <Building2 className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Votre déménageur</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">Certifié, assuré et noté. Il vous envoie un devis sur-mesure.</p>
+            </div>
+          </div>
+
+          <div className="text-center animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+            <button
+              onClick={() => navigate('/client/auth-choice')}
+              className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Estimer mon déménagement
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-gradient-to-b from-white to-slate-50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-100/30 rounded-full blur-3xl"></div>
 
@@ -140,10 +199,10 @@ export function LandingPage() {
               <Shield className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
-              Une protection <span className="gradient-text">intelligente</span>
+              Trois preuves. <span className="gradient-text">Zéro doute.</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-light">
-              Notre technologie IA révolutionne le déménagement en protégeant équitablement clients et professionnels à chaque étape
+              Un protocole photo en trois étapes qui protège équitablement le client et le professionnel.
             </p>
           </div>
 
@@ -155,9 +214,9 @@ export function LandingPage() {
               <div className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full mb-4">
                 ÉTAPE 1
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Photos avant départ</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Avant le départ</h3>
               <p className="text-gray-600 leading-relaxed">
-                Le client documente l'état initial de tous ses biens lors de la demande de devis. Preuves irréfutables.
+                Vous photographiez vos biens. L'IA enregistre leur état d'origine.
               </p>
             </div>
 
@@ -168,9 +227,9 @@ export function LandingPage() {
               <div className="inline-block px-3 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-full mb-4">
                 ÉTAPE 2
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Photos au chargement</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Au chargement</h3>
               <p className="text-gray-600 leading-relaxed">
-                Le déménageur photographie chaque bien au moment du chargement. Protection contre les fausses réclamations.
+                Le déménageur documente la prise en charge. Chaque bien est tracé.
               </p>
             </div>
 
@@ -181,9 +240,9 @@ export function LandingPage() {
               <div className="inline-block px-3 py-1 bg-orange-50 text-orange-700 text-xs font-bold rounded-full mb-4">
                 ÉTAPE 3
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Photos au déchargement</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">A l'arrivée</h3>
               <p className="text-gray-600 leading-relaxed">
-                Le client inspecte et documente l'arrivée de ses biens. Rapport de dommages instantané si nécessaire.
+                Vous vérifiez, l'IA compare. En cas de dommage, le verdict est instantané.
               </p>
             </div>
           </div>
@@ -196,49 +255,69 @@ export function LandingPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-gray-900/90 to-blue-900/85"></div>
             <div className="relative p-10 md:p-16">
-              <div className="max-w-4xl">
-                <div className="flex items-center space-x-4 mb-8">
+              <div className="max-w-5xl mx-auto text-center">
+                <div className="flex items-center justify-center space-x-4 mb-6">
                   <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-4 rounded-2xl shadow-xl animate-float">
                     <Sparkles className="w-8 h-8 text-white" />
                   </div>
-                  <div>
-                    <div className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full mb-2">
-                      TECHNOLOGIE AVANCÉE
-                    </div>
-                    <h3 className="text-3xl md:text-4xl font-extrabold text-white">
-                      Intelligence Artificielle
-                    </h3>
-                  </div>
                 </div>
-                <p className="text-xl text-gray-200 mb-10 leading-relaxed font-light">
-                  Notre IA analyse et compare automatiquement les photos prises à chaque étape pour déterminer avec précision l'origine des dommages éventuels.
+                <div className="inline-block px-4 py-1.5 bg-blue-500/20 text-blue-300 text-xs font-bold rounded-full mb-4 tracking-wider">
+                  TECHNOLOGIE PROPRIÉTAIRE
+                </div>
+                <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-6">
+                  Une IA qui tranche, pas qui devine.
+                </h3>
+                <p className="text-lg md:text-xl text-gray-200 mb-12 leading-relaxed font-light max-w-3xl mx-auto">
+                  Comparaison photo par photo, verdict objectif, traçabilité totale. Ni le client ni le pro ne peuvent contester les faits.
                 </p>
                 <div className="grid sm:grid-cols-2 gap-6">
-                  <div className="glass-effect p-6 rounded-2xl border border-white/10">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-green-400" />
+                  <div className="glass-effect p-6 rounded-2xl border border-white/10 text-left">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <Camera className="w-6 h-6 text-white" />
                       </div>
-                      <div>
-                        <p className="text-white font-bold text-lg mb-1">Protection Client</p>
-                        <p className="text-gray-300 text-sm leading-relaxed">
-                          Dommages préexistants automatiquement identifiés et documentés
-                        </p>
-                      </div>
+                      <span className="text-sm font-bold text-blue-300 bg-blue-500/20 px-3 py-1 rounded-full">99.2%</span>
                     </div>
+                    <p className="text-white font-bold text-lg mb-1">Détection en temps réel</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Chaque rayure, chaque impact identifié avec une précision de 99.2%
+                    </p>
                   </div>
-                  <div className="glass-effect p-6 rounded-2xl border border-white/10">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-blue-400" />
+                  <div className="glass-effect p-6 rounded-2xl border border-white/10 text-left">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <Shield className="w-6 h-6 text-white" />
                       </div>
-                      <div>
-                        <p className="text-white font-bold text-lg mb-1">Protection Pro</p>
-                        <p className="text-gray-300 text-sm leading-relaxed">
-                          Rapport complet pour votre assurance généré instantanément
-                        </p>
-                      </div>
+                      <span className="text-sm font-bold text-cyan-300 bg-cyan-500/20 px-3 py-1 rounded-full">100%</span>
                     </div>
+                    <p className="text-white font-bold text-lg mb-1">Verdict impartial</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Décision fondée sur les preuves, pas sur les déclarations
+                    </p>
+                  </div>
+                  <div className="glass-effect p-6 rounded-2xl border border-white/10 text-left">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <FileCheck className="w-6 h-6 text-white" />
+                      </div>
+                      <span className="text-sm font-bold text-green-300 bg-green-500/20 px-3 py-1 rounded-full">Certifié</span>
+                    </div>
+                    <p className="text-white font-bold text-lg mb-1">Traçabilité certifiée</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      Date, heure, géolocalisation. Chaque photo a valeur de preuve.
+                    </p>
+                  </div>
+                  <div className="glass-effect p-6 rounded-2xl border border-white/10 text-left">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <Shield className="w-6 h-6 text-white" />
+                      </div>
+                      <span className="text-sm font-bold text-orange-300 bg-orange-500/20 px-3 py-1 rounded-full">-87%</span>
+                    </div>
+                    <p className="text-white font-bold text-lg mb-1">Litiges quasi éliminés</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      -87% de litiges. Les faits parlent, les conflits disparaissent.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -253,10 +332,10 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-20 animate-fadeInUp">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
-              Pourquoi nous choisir ?
+              Ce qui fait la <span className="gradient-text">différence</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto font-light">
-              L'excellence à chaque étape de votre déménagement
+              Une exigence de qualité à chaque étape, sans exception.
             </p>
           </div>
 
@@ -270,8 +349,8 @@ export function LandingPage() {
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Protection totale</h3>
-              <p className="text-gray-600 leading-relaxed">Tous nos déménageurs possèdent une assurance professionnelle vérifiée</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Assurance vérifiée</h3>
+              <p className="text-gray-600 leading-relaxed">Chaque professionnel est couvert. Nous le vérifions avant toute mise en relation.</p>
             </div>
 
             <div className="text-center group animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
@@ -283,8 +362,8 @@ export function LandingPage() {
                   <Star className="w-5 h-5 text-white fill-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Pros certifiés</h3>
-              <p className="text-gray-600 leading-relaxed">100% des déménageurs vérifiés et assurés</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Pros triés sur le volet</h3>
+              <p className="text-gray-600 leading-relaxed">Documents, avis, antécédents : rien n'est laissé au hasard.</p>
             </div>
 
             <div className="text-center group animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
@@ -296,8 +375,8 @@ export function LandingPage() {
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">IA avancée</h3>
-              <p className="text-gray-600 leading-relaxed">Technologie de pointe pour votre sécurité maximale</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">IA propriétaire</h3>
+              <p className="text-gray-600 leading-relaxed">Une technologie exclusive qui protège vos biens et vos droits.</p>
             </div>
 
             <div className="text-center group animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
@@ -309,8 +388,8 @@ export function LandingPage() {
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Sans engagement</h3>
-              <p className="text-gray-600 leading-relaxed">Devis gratuits, aucune obligation d'achat</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Gratuit, sans engagement</h3>
+              <p className="text-gray-600 leading-relaxed">Recevez vos devis librement. Vous choisissez, sans pression.</p>
             </div>
           </div>
         </div>
@@ -320,10 +399,10 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20 animate-fadeInUp">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
-              Ils nous font <span className="gradient-text">confiance</span>
+              La confiance, <span className="gradient-text">ça se prouve.</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto font-light">
-              Découvrez les témoignages de nos clients satisfaits
+              Clients et professionnels témoignent.
             </p>
           </div>
 
@@ -337,7 +416,7 @@ export function LandingPage() {
                 <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
               </div>
               <p className="text-gray-700 leading-relaxed mb-6">
-                "Le système de photos avec IA m'a sauvé ! Un meuble était abîmé avant le déménagement et l'IA l'a clairement identifié. Aucun litige avec le déménageur."
+                "Un meuble était déjà abîmé avant le départ. L'IA l'a détecté immédiatement. Résultat : aucun litige, aucun stress. Je recommande les yeux fermés."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -359,7 +438,7 @@ export function LandingPage() {
                 <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
               </div>
               <p className="text-gray-700 leading-relaxed mb-6">
-                "En tant que déménageur, cette plateforme me protège des fausses accusations. L'IA est impartiale et les rapports sont acceptés par les assurances."
+                "Fini les accusations injustifiées. Les photos sont là, l'IA tranche. Mes clients ont confiance et moi aussi. C'est du sérieux."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -381,7 +460,7 @@ export function LandingPage() {
                 <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
               </div>
               <p className="text-gray-700 leading-relaxed mb-6">
-                "Service exceptionnel ! Les 3 devis reçus en 24h, choix facile grâce aux avis vérifiés. Le suivi photo est génial pour la tranquillité d'esprit."
+                "3 devis en 24h, des avis vérifiés, un suivi photo complet. J'ai déménagé en toute sérénité. Le niveau de service est rare."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -422,10 +501,10 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-16 animate-fadeInUp">
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
-              Nos <span className="gradient-text">Partenaires</span>
+              Nos <span className="gradient-text">partenaires</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto font-light">
-              Des entreprises de confiance qui partagent notre vision de l'excellence
+              Des leaders technologiques au service de votre sécurité.
             </p>
           </div>
 
@@ -438,7 +517,7 @@ export function LandingPage() {
               <h3 className="text-xl font-bold text-gray-900 mb-2">Stripe</h3>
               <p className="text-sm text-gray-500 mb-3">Paiements sécurisés</p>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Leader mondial du paiement en ligne. Vos transactions sont protégées par la norme PCI-DSS la plus stricte.
+                Norme PCI-DSS. Vos paiements sont chiffrés et protégés au plus haut niveau.
               </p>
             </div>
 
@@ -450,7 +529,7 @@ export function LandingPage() {
               <h3 className="text-xl font-bold text-gray-900 mb-2">Dropbox Sign</h3>
               <p className="text-sm text-gray-500 mb-3">Signature électronique</p>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Solution de signature électronique conforme eIDAS. Vos contrats signés en toute sécurité et conformité juridique.
+                Conforme eIDAS. Vos contrats signés en ligne ont pleine valeur juridique.
               </p>
             </div>
 
@@ -462,7 +541,7 @@ export function LandingPage() {
               <h3 className="text-xl font-bold text-gray-900 mb-2">Vercel</h3>
               <p className="text-sm text-gray-500 mb-3">Hébergement sécurisé</p>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Infrastructure cloud de pointe garantissant performance, disponibilité et sécurité maximale de vos données.
+                Infrastructure cloud haute disponibilité. Vos données accessibles et protégées 24h/24.
               </p>
             </div>
           </div>
@@ -472,7 +551,7 @@ export function LandingPage() {
               onClick={() => navigate('/partners')}
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              Voir tous nos partenaires
+              Découvrir nos partenaires
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -495,14 +574,14 @@ export function LandingPage() {
           </div>
 
           <h2 className="text-4xl md:text-6xl font-extrabold mb-8 leading-tight animate-fadeInUp">
-            Prêt à déménager en toute
+            Votre prochain déménagement
             <span className="block mt-2 bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent">
-              confiance ?
+              mérite mieux.
             </span>
           </h2>
 
           <p className="text-xl md:text-2xl text-blue-50/90 mb-12 leading-relaxed max-w-3xl mx-auto font-light animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
-            Recevez jusqu'à 3 devis gratuits de déménageurs professionnels vérifiés et protégés par IA
+            Recevez jusqu'à 3 devis de professionnels vérifiés. Protégés par l'IA. Sans engagement.
           </p>
 
           <button
@@ -510,12 +589,12 @@ export function LandingPage() {
             className="group bg-white text-blue-600 px-12 py-6 rounded-2xl font-bold text-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 inline-flex items-center space-x-3 shadow-premium animate-fadeInUp"
             style={{ animationDelay: '0.4s' }}
           >
-            <span>Demander mes devis gratuits</span>
+            <span>Commencer maintenant</span>
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </button>
 
           <p className="mt-6 text-sm text-blue-200/80 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
-            Sans engagement • Réponse sous 24h • 100% sécurisé
+            Gratuit -- Réponse sous 24h -- 100% sécurisé
           </p>
         </div>
       </section>
@@ -534,11 +613,11 @@ export function LandingPage() {
                   <img src="/logo.png" alt="TrouveTonDemenageur" className="h-12 w-auto" />
                   <div>
                     <span className="text-2xl font-bold text-white block">TrouveTonDemenageur</span>
-                    <span className="text-xs text-gray-400">Protection IA nouvelle génération</span>
+                    <span className="text-xs text-gray-400">Le déménagement de confiance</span>
                   </div>
                 </div>
                 <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                  La première plateforme française de déménagement qui protège équitablement clients et professionnels grâce à l'intelligence artificielle. Déménagez en toute sérénité.
+                  La plateforme premium qui sécurise chaque déménagement grâce à l'IA. Protection équitable pour les clients et les professionnels.
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="text-center">
@@ -629,12 +708,6 @@ export function LandingPage() {
                       Guide du déménagement
                     </button>
                   </li>
-                  <li>
-                    <button onClick={() => navigate('/blog')} className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-2 group">
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                      Blog
-                    </button>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -643,7 +716,7 @@ export function LandingPage() {
           <div className="py-8 border-b border-gray-800">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <a
-                href="tel:+33123456789"
+                href="tel:0189707881"
                 className="flex items-start gap-4 hover:bg-white/5 p-3 rounded-xl transition-all group"
               >
                 <div className="bg-blue-500/10 p-3 rounded-xl group-hover:bg-blue-500/20 transition-all">

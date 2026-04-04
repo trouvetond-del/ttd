@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { showToast } from '../../utils/toast';
+import AddressAutocomplete from '../AddressAutocomplete';
+import { calculateRealDistance } from '../../utils/distanceCalculator';
 import ImportClientsModal from './ImportClientsModal';
 import * as XLSX from 'xlsx';
 
@@ -16,6 +18,7 @@ interface ClientProspect {
   invitation_status: string; invitation_token: string | null; invitation_sent_at: string | null;
   invitation_expires_at: string | null; invitation_clicked_at: string | null;
   user_id: string | null; created_at: string;
+  inscription_type?: string; initial_quote_data?: any;
 }
 
 type CallStatus = 'not_called' | 'called_interested' | 'called_not_interested' | 'called_no_answer' | 'callback_later';
@@ -32,7 +35,7 @@ const CALL_STATUS_CONFIG: Record<CallStatus, { label: string; color: string; ico
 const EMAIL_DELAY_MS = 600;
 const MAX_BULK_EMAILS = 50;
 
-export default function AdminClientProspects({ adminRole = '' }: { adminRole?: string }) {
+export default function AdminClientProspects() {
   const [prospects, setProspects] = useState<ClientProspect[]>([]);
   const [loading, setLoading] = useState(true);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -148,7 +151,7 @@ export default function AdminClientProspects({ adminRole = '' }: { adminRole?: s
       const resp = await fetch(`${sbUrl}/functions/v1/send-client-invitation`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${sbKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: prospect.email, firstname: prospect.firstname, lastname: prospect.lastname, token: finalToken }),
+        body: JSON.stringify({ email: prospect.email, firstname: prospect.firstname, lastname: prospect.lastname, token: finalToken, initialQuoteData: prospect.initial_quote_data || null }),
       });
       if (!resp.ok) throw new Error('Erreur envoi email');
 
@@ -268,7 +271,7 @@ export default function AdminClientProspects({ adminRole = '' }: { adminRole?: s
           <p className="text-sm text-gray-500 mt-1">Importez, appelez, et invitez des clients</p>
         </div>
         <div className="flex items-center gap-3">
-          {adminRole === 'super_admin' && <button onClick={() => exportProspects(false)} className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><Download className="w-4 h-4" /> Exporter tout</button>}
+          <button onClick={() => exportProspects(false)} className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><Download className="w-4 h-4" /> Exporter tout</button>
           <button onClick={fetchProspects} className="p-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"><RefreshCw className="w-4 h-4" /></button>
           <button onClick={() => setShowImportModal(true)} className="flex items-center gap-2 px-4 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700"><Upload className="w-4 h-4" /> Importer</button>
           <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"><UserPlus className="w-4 h-4" /> Ajouter</button>
@@ -312,10 +315,10 @@ export default function AdminClientProspects({ adminRole = '' }: { adminRole?: s
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-2 ml-auto">
               <span className="text-sm text-purple-600 font-medium">{selectedIds.size} sélectionné(s)</span>
-              {adminRole === 'super_admin' && <button onClick={() => exportProspects(true)}
+              <button onClick={() => exportProspects(true)}
                 className="flex items-center gap-2 px-4 py-1.5 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-100">
                 <Download className="w-3.5 h-3.5" /> Exporter
-              </button>}
+              </button>
               <button onClick={deleteSelectedProspects}
                 className="flex items-center gap-2 px-4 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
                 <Trash2 className="w-3.5 h-3.5" /> Supprimer
@@ -373,7 +376,7 @@ export default function AdminClientProspects({ adminRole = '' }: { adminRole?: s
                           <button onClick={() => setEditingEmailId(null)} className="p-0.5 text-gray-400 hover:bg-gray-100 rounded"><X className="w-3.5 h-3.5" /></button>
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" />{p.email}</span>
+                        <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" />{p.email}{p.inscription_type === 'with_quote' && <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-blue-100 text-blue-700 rounded-full font-medium">+ demande</span>}</span>
                       )}
                       {p.phone ? <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{p.phone}</span> : <span className="flex items-center gap-1 text-orange-500"><PhoneOff className="w-3.5 h-3.5" />Sans tél</span>}
                     </div>
@@ -589,15 +592,83 @@ function ClientProspectDetailModal({ prospect, onClose, onUpdated }: {
 // ============================================================
 // Add single client prospect modal
 // ============================================================
+const QUOTE_HOME_SIZES = ['Studio', 'T1', 'T2', 'T3', 'T4', 'T5+'];
+const QUOTE_HOME_TYPES = ['Appartement', 'Maison', 'Bureau'];
+const QUOTE_SERVICES = ['Emballage/Déballage', 'Fourniture de cartons', 'Démontage/Remontage meubles', 'Garde-meubles', "Transport d'objets fragiles", 'Nettoyage après déménagement'];
+const QUOTE_FORMULAS = [
+  { id: 'eco', label: 'ECO', desc: 'Aucun service' },
+  { id: 'standard', label: 'STANDARD', desc: 'Démontage/Remontage' },
+  { id: 'confort', label: 'CONFORT', desc: 'Emballage + Démontage/Remontage' },
+  { id: 'premium', label: 'PREMIUM', desc: 'Tout inclus' },
+];
+const CARRYING_DISTANCES = ['10m', '20m', '30m', '40m', '50m+'];
+
 function AddSingleClientModal({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
+  const [inscriptionType, setInscriptionType] = useState<'standard' | 'with_quote'>('standard');
   const [form, setForm] = useState({ email: '', firstname: '', lastname: '', phone: '' });
+  const [quoteForm, setQuoteForm] = useState({
+    from_address: '', from_city: '', from_postal_code: '',
+    from_latitude: null as number | null, from_longitude: null as number | null,
+    from_home_size: '', from_home_type: '', from_surface_m2: '' as string,
+    to_address: '', to_city: '', to_postal_code: '',
+    to_latitude: null as number | null, to_longitude: null as number | null,
+    to_home_size: '', to_home_type: '', to_surface_m2: '' as string,
+    moving_date: '', floor_from: 0, floor_to: 0,
+    elevator_from: false, elevator_to: false,
+    elevator_capacity_from: '', elevator_capacity_to: '',
+    furniture_lift_needed_departure: false, furniture_lift_needed_arrival: false,
+    carrying_distance_from: '', carrying_distance_to: '',
+    volume_m3: '' as string, formula: 'eco',
+    services_needed: [] as string[], accepts_groupage: false,
+    additional_info: '',
+  });
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [calculatedDistance, setCalculatedDistance] = useState<{ distance: number; distanceText: string; duration: number; durationText: string } | null>(null);
+  const [calculatingDistance, setCalculatingDistance] = useState(false);
+
+  // Auto-calculate distance when both addresses are filled
+  useEffect(() => {
+    if (inscriptionType !== 'with_quote') return;
+    if (!quoteForm.from_address || !quoteForm.from_city || !quoteForm.to_address || !quoteForm.to_city) {
+      setCalculatedDistance(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setCalculatingDistance(true);
+      try {
+        const result = await calculateRealDistance(
+          quoteForm.from_address, quoteForm.from_city, quoteForm.from_postal_code,
+          quoteForm.to_address, quoteForm.to_city, quoteForm.to_postal_code
+        );
+        if (result) setCalculatedDistance(result);
+      } catch { /* ignore */ }
+      finally { setCalculatingDistance(false); }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [inscriptionType, quoteForm.from_address, quoteForm.from_city, quoteForm.from_postal_code, quoteForm.to_address, quoteForm.to_city, quoteForm.to_postal_code]);
 
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.email.trim()) e.email = 'Email obligatoire';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = 'Email invalide';
+    if (!form.firstname.trim()) e.firstname = 'Prénom obligatoire';
+    if (!form.lastname.trim()) e.lastname = 'Nom obligatoire';
+    if (!form.phone.trim()) e.phone = 'Téléphone obligatoire';
+    if (inscriptionType === 'with_quote') {
+      // Adresses complètes avec code postal obligatoire
+      if (!quoteForm.from_address.trim() || !quoteForm.from_city.trim()) e.from_address = 'Adresse de départ requise';
+      else if (!quoteForm.from_postal_code.trim()) e.from_address = 'Adresse incomplète — veuillez sélectionner une adresse avec code postal';
+      if (!quoteForm.to_address.trim() || !quoteForm.to_city.trim()) e.to_address = "Adresse d'arrivée requise";
+      else if (!quoteForm.to_postal_code.trim()) e.to_address = "Adresse incomplète — veuillez sélectionner une adresse avec code postal";
+      if (!quoteForm.moving_date) e.moving_date = 'Date requise';
+      if (!quoteForm.from_home_size) e.from_home_size = 'Taille requise';
+      if (!quoteForm.from_home_type) e.from_home_type = 'Type requis';
+      if (!quoteForm.from_surface_m2) e.from_surface_m2 = 'Surface requise';
+      if (!quoteForm.to_home_size) e.to_home_size = 'Taille requise';
+      if (!quoteForm.to_home_type) e.to_home_type = 'Type requis';
+      if (!quoteForm.to_surface_m2) e.to_surface_m2 = 'Surface requise';
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -610,8 +681,7 @@ function AddSingleClientModal({ onClose, onAdded }: { onClose: () => void; onAdd
       if (existing) { setErrors({ email: 'Cet email existe déjà dans les prospects' }); setSaving(false); return; }
 
       const hasPhone = !!form.phone.trim();
-
-      const { error } = await supabase.from('client_prospects').insert({
+      const insertData: any = {
         email: form.email.trim().toLowerCase(),
         firstname: form.firstname.trim(),
         lastname: form.lastname.trim(),
@@ -619,10 +689,52 @@ function AddSingleClientModal({ onClose, onAdded }: { onClose: () => void; onAdd
         has_phone: hasPhone,
         call_status: 'not_called',
         invitation_status: 'not_invited',
-      });
+        inscription_type: inscriptionType,
+      };
 
+      if (inscriptionType === 'with_quote') {
+        insertData.initial_quote_data = {
+          from_address: quoteForm.from_address.trim(),
+          from_city: quoteForm.from_city.trim(),
+          from_postal_code: quoteForm.from_postal_code.trim(),
+          from_latitude: quoteForm.from_latitude,
+          from_longitude: quoteForm.from_longitude,
+          from_home_size: quoteForm.from_home_size,
+          from_home_type: quoteForm.from_home_type,
+          from_surface_m2: quoteForm.from_surface_m2 ? parseFloat(quoteForm.from_surface_m2) : null,
+          to_address: quoteForm.to_address.trim(),
+          to_city: quoteForm.to_city.trim(),
+          to_postal_code: quoteForm.to_postal_code.trim(),
+          to_latitude: quoteForm.to_latitude,
+          to_longitude: quoteForm.to_longitude,
+          to_home_size: quoteForm.to_home_size,
+          to_home_type: quoteForm.to_home_type,
+          to_surface_m2: quoteForm.to_surface_m2 ? parseFloat(quoteForm.to_surface_m2) : null,
+          moving_date: quoteForm.moving_date,
+          floor_from: quoteForm.floor_from,
+          floor_to: quoteForm.floor_to,
+          elevator_from: quoteForm.elevator_from,
+          elevator_to: quoteForm.elevator_to,
+          elevator_capacity_from: quoteForm.elevator_capacity_from,
+          elevator_capacity_to: quoteForm.elevator_capacity_to,
+          furniture_lift_needed_departure: quoteForm.furniture_lift_needed_departure,
+          furniture_lift_needed_arrival: quoteForm.furniture_lift_needed_arrival,
+          carrying_distance_from: quoteForm.carrying_distance_from,
+          carrying_distance_to: quoteForm.carrying_distance_to,
+          volume_m3: quoteForm.volume_m3 ? parseFloat(quoteForm.volume_m3) : null,
+          formula: quoteForm.formula,
+          services_needed: quoteForm.services_needed,
+          accepts_groupage: quoteForm.accepts_groupage,
+          additional_info: quoteForm.additional_info.trim(),
+          distance_km: calculatedDistance?.distance || null,
+          distance_text: calculatedDistance?.distanceText || null,
+          duration_text: calculatedDistance?.durationText || null,
+        };
+      }
+
+      const { error } = await supabase.from('client_prospects').insert(insertData);
       if (error) throw error;
-      showToast('Prospect client ajouté avec succès', 'success');
+      showToast(inscriptionType === 'with_quote' ? 'Prospect + demande initiale ajoutés' : 'Prospect client ajouté', 'success');
       onAdded();
     } catch (error: any) {
       showToast(`Erreur: ${error.message}`, 'error');
@@ -633,14 +745,37 @@ function AddSingleClientModal({ onClose, onAdded }: { onClose: () => void; onAdd
     setForm(prev => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
   };
+  const setQ = (field: string, value: any) => {
+    setQuoteForm(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
+  };
 
   const inputClass = (field: string) =>
     `w-full text-sm border rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 ${errors[field] ? 'border-red-400' : 'border-gray-300 dark:border-gray-600'}`;
 
+  const toggleService = (s: string) => {
+    setQuoteForm(prev => ({
+      ...prev,
+      services_needed: prev.services_needed.includes(s) ? prev.services_needed.filter(x => x !== s) : [...prev.services_needed, s]
+    }));
+  };
+
+  const selectFormula = (formula: string) => {
+    let newServices: string[] = [];
+    switch (formula) {
+      case 'eco': newServices = []; break;
+      case 'standard': newServices = ['Démontage/Remontage meubles']; break;
+      case 'confort': newServices = ['Emballage/Déballage', 'Démontage/Remontage meubles']; break;
+      case 'premium': newServices = ['Emballage/Déballage', 'Démontage/Remontage meubles', 'Fourniture de cartons']; break;
+    }
+    setQuoteForm(prev => ({ ...prev, formula, services_needed: newServices }));
+    if (errors.formula) setErrors(prev => { const n = { ...prev }; delete n.formula; return n; });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-green-600" />
             Ajouter un prospect client
@@ -648,35 +783,276 @@ function AddSingleClientModal({ onClose, onAdded }: { onClose: () => void; onAdd
           <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
-          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3 text-xs text-purple-700 dark:text-purple-300">
-            Seul l'email est obligatoire. Les clients sans téléphone seront dans l'onglet "Sans téléphone" pour envoi d'emails de découverte.
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+          {/* Inscription type toggle */}
+          <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <button type="button" onClick={() => setInscriptionType('standard')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition ${inscriptionType === 'standard' ? 'bg-white dark:bg-gray-600 shadow text-purple-700 dark:text-purple-300' : 'text-gray-600 dark:text-gray-400'}`}>
+              Inscription standard
+            </button>
+            <button type="button" onClick={() => setInscriptionType('with_quote')}
+              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition ${inscriptionType === 'with_quote' ? 'bg-white dark:bg-gray-600 shadow text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'}`}>
+              Avec demande initiale
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email <span className="text-red-500">*</span></label>
-            <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="email@exemple.com" className={inputClass('email')} />
-            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-          </div>
+          {inscriptionType === 'with_quote' && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-xs text-blue-700 dark:text-blue-300">
+              Le client recevra un email d'invitation avec le récapitulatif de sa demande. En confirmant son inscription, la demande sera automatiquement créée et visible par les déménageurs.
+            </div>
+          )}
 
-          <div className="grid grid-cols-2 gap-3">
+          {/* Client info */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Informations client</h3>
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Prénom</label>
-              <input type="text" value={form.firstname} onChange={(e) => set('firstname', e.target.value)} placeholder="Prénom" className={inputClass('firstname')} />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email <span className="text-red-500">*</span></label>
+              <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="email@exemple.com" className={inputClass('email')} />
+              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Prénom <span className="text-red-500">*</span></label>
+                <input type="text" value={form.firstname} onChange={(e) => set('firstname', e.target.value)} placeholder="Prénom" className={inputClass('firstname')} />
+                {errors.firstname && <p className="text-xs text-red-500 mt-1">{errors.firstname}</p>}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nom <span className="text-red-500">*</span></label>
+                <input type="text" value={form.lastname} onChange={(e) => set('lastname', e.target.value)} placeholder="Nom" className={inputClass('lastname')} />
+                {errors.lastname && <p className="text-xs text-red-500 mt-1">{errors.lastname}</p>}
+              </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nom</label>
-              <input type="text" value={form.lastname} onChange={(e) => set('lastname', e.target.value)} placeholder="Nom" className={inputClass('lastname')} />
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Téléphone <span className="text-red-500">*</span></label>
+              <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="06 12 34 56 78" className={inputClass('phone')} />
+              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Téléphone</label>
-            <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="06 12 34 56 78" className={inputClass('phone')} />
-          </div>
+          {/* Quote form (only if with_quote) */}
+          {inscriptionType === 'with_quote' && (
+            <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">Détails de la demande</h3>
+
+              {/* Departure */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-3">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">🏠 Départ</p>
+                <AddressAutocomplete
+                  id="admin-from-address"
+                  value={`${quoteForm.from_address}${quoteForm.from_city ? ', ' + quoteForm.from_city : ''}${quoteForm.from_postal_code ? ' ' + quoteForm.from_postal_code : ''}`}
+                  onAddressSelect={(addr) => {
+                    if (!addr.postalCode) {
+                      setErrors(prev => ({ ...prev, from_address: 'Adresse incomplète — veuillez sélectionner une adresse avec code postal' }));
+                      return;
+                    }
+                    setQuoteForm(prev => ({
+                      ...prev,
+                      from_address: addr.street,
+                      from_city: addr.city,
+                      from_postal_code: addr.postalCode,
+                      from_latitude: addr.latitude || null,
+                      from_longitude: addr.longitude || null,
+                    }));
+                    if (errors.from_address) setErrors(prev => { const n = { ...prev }; delete n.from_address; return n; });
+                  }}
+                  placeholder="Tapez l'adresse de départ..."
+                  label="Adresse complète *"
+                  required
+                  error={errors.from_address}
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Taille logement <span className="text-red-500">*</span></label>
+                    <select value={quoteForm.from_home_size} onChange={(e) => setQ('from_home_size', e.target.value)} className={inputClass('from_home_size')}>
+                      <option value="">Taille</option>
+                      {QUOTE_HOME_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    {errors.from_home_size && <p className="text-xs text-red-500 mt-0.5">{errors.from_home_size}</p>}
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Type logement <span className="text-red-500">*</span></label>
+                    <select value={quoteForm.from_home_type} onChange={(e) => setQ('from_home_type', e.target.value)} className={inputClass('from_home_type')}>
+                      <option value="">Type</option>
+                      {QUOTE_HOME_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    {errors.from_home_type && <p className="text-xs text-red-500 mt-0.5">{errors.from_home_type}</p>}
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Surface (m²) <span className="text-red-500">*</span></label>
+                    <input type="number" min="1" step="1" value={quoteForm.from_surface_m2} onChange={(e) => setQ('from_surface_m2', e.target.value)} placeholder="ex: 65" className={inputClass('from_surface_m2')} />
+                    {errors.from_surface_m2 && <p className="text-xs text-red-500 mt-0.5">{errors.from_surface_m2}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Étage</label>
+                    <input type="number" min="0" max="30" value={quoteForm.floor_from} onChange={(e) => setQ('floor_from', parseInt(e.target.value) || 0)} className={inputClass('')} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Distance portage</label>
+                    <select value={quoteForm.carrying_distance_from} onChange={(e) => setQ('carrying_distance_from', e.target.value)} className={inputClass('')}>
+                      <option value="">Sélectionner</option>
+                      {CARRYING_DISTANCES.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col justify-end gap-1">
+                    <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                      <input type="checkbox" checked={quoteForm.elevator_from} onChange={(e) => setQ('elevator_from', e.target.checked)} className="rounded" />
+                      Ascenseur
+                    </label>
+                    <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                      <input type="checkbox" checked={quoteForm.furniture_lift_needed_departure} onChange={(e) => setQ('furniture_lift_needed_departure', e.target.checked)} className="rounded" />
+                      Monte-meuble
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrival */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-3">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase">📍 Arrivée</p>
+                <AddressAutocomplete
+                  id="admin-to-address"
+                  value={`${quoteForm.to_address}${quoteForm.to_city ? ', ' + quoteForm.to_city : ''}${quoteForm.to_postal_code ? ' ' + quoteForm.to_postal_code : ''}`}
+                  onAddressSelect={(addr) => {
+                    if (!addr.postalCode) {
+                      setErrors(prev => ({ ...prev, to_address: "Adresse incomplète — veuillez sélectionner une adresse avec code postal" }));
+                      return;
+                    }
+                    setQuoteForm(prev => ({
+                      ...prev,
+                      to_address: addr.street,
+                      to_city: addr.city,
+                      to_postal_code: addr.postalCode,
+                      to_latitude: addr.latitude || null,
+                      to_longitude: addr.longitude || null,
+                    }));
+                    if (errors.to_address) setErrors(prev => { const n = { ...prev }; delete n.to_address; return n; });
+                  }}
+                  placeholder="Tapez l'adresse d'arrivée..."
+                  label="Adresse complète *"
+                  required
+                  error={errors.to_address}
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Taille logement <span className="text-red-500">*</span></label>
+                    <select value={quoteForm.to_home_size} onChange={(e) => setQ('to_home_size', e.target.value)} className={inputClass('to_home_size')}>
+                      <option value="">Taille</option>
+                      {QUOTE_HOME_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                    {errors.to_home_size && <p className="text-xs text-red-500 mt-0.5">{errors.to_home_size}</p>}
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Type logement <span className="text-red-500">*</span></label>
+                    <select value={quoteForm.to_home_type} onChange={(e) => setQ('to_home_type', e.target.value)} className={inputClass('to_home_type')}>
+                      <option value="">Type</option>
+                      {QUOTE_HOME_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    {errors.to_home_type && <p className="text-xs text-red-500 mt-0.5">{errors.to_home_type}</p>}
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Surface (m²) <span className="text-red-500">*</span></label>
+                    <input type="number" min="1" step="1" value={quoteForm.to_surface_m2} onChange={(e) => setQ('to_surface_m2', e.target.value)} placeholder="ex: 65" className={inputClass('to_surface_m2')} />
+                    {errors.to_surface_m2 && <p className="text-xs text-red-500 mt-0.5">{errors.to_surface_m2}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Étage</label>
+                    <input type="number" min="0" max="30" value={quoteForm.floor_to} onChange={(e) => setQ('floor_to', parseInt(e.target.value) || 0)} className={inputClass('')} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Distance portage</label>
+                    <select value={quoteForm.carrying_distance_to} onChange={(e) => setQ('carrying_distance_to', e.target.value)} className={inputClass('')}>
+                      <option value="">Sélectionner</option>
+                      {CARRYING_DISTANCES.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex flex-col justify-end gap-1">
+                    <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                      <input type="checkbox" checked={quoteForm.elevator_to} onChange={(e) => setQ('elevator_to', e.target.checked)} className="rounded" />
+                      Ascenseur
+                    </label>
+                    <label className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                      <input type="checkbox" checked={quoteForm.furniture_lift_needed_arrival} onChange={(e) => setQ('furniture_lift_needed_arrival', e.target.checked)} className="rounded" />
+                      Monte-meuble
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Distance */}
+              {(quoteForm.from_city && quoteForm.to_city) && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-1">📏 Distance du trajet</p>
+                  {calculatingDistance ? (
+                    <p className="text-xs text-blue-600 animate-pulse">Calcul en cours...</p>
+                  ) : calculatedDistance ? (
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="font-bold text-blue-800 dark:text-blue-200">{calculatedDistance.distanceText}</span>
+                      <span className="text-green-700 dark:text-green-300">Durée : {calculatedDistance.durationText}</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">Renseignez les adresses complètes pour calculer</p>
+                  )}
+                </div>
+              )}
+
+              {/* Date + Volume */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Date de déménagement *</label>
+                  <input type="date" value={quoteForm.moving_date} onChange={(e) => setQ('moving_date', e.target.value)} min={new Date().toISOString().split('T')[0]} className={inputClass('moving_date')} />
+                  {errors.moving_date && <p className="text-xs text-red-500">{errors.moving_date}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Volume estimé (m³)</label>
+                  <input type="number" min="0" step="0.5" value={quoteForm.volume_m3} onChange={(e) => setQ('volume_m3', e.target.value)} placeholder="ex: 25" className={inputClass('')} />
+                </div>
+              </div>
+
+              {/* Formula */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Formule</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {QUOTE_FORMULAS.map(f => (
+                    <button key={f.id} type="button" onClick={() => selectFormula(f.id)}
+                      className={`p-2 border-2 rounded-lg text-center transition text-xs ${quoteForm.formula === f.id ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'}`}>
+                      <div className="font-bold text-gray-900 dark:text-white">{f.label}</div>
+                      <div className="text-gray-500 dark:text-gray-400 text-[10px]">{f.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Services */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Services supplémentaires</label>
+                <div className="flex flex-wrap gap-2">
+                  {QUOTE_SERVICES.map(s => (
+                    <button key={s} type="button" onClick={() => toggleService(s)}
+                      className={`px-2 py-1 rounded-full text-xs border transition ${quoteForm.services_needed.includes(s) ? 'bg-blue-100 border-blue-400 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400'}`}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Groupage + Notes */}
+              <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <input type="checkbox" checked={quoteForm.accepts_groupage} onChange={(e) => setQ('accepts_groupage', e.target.checked)} className="rounded" />
+                Accepte le groupage
+              </label>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Informations complémentaires</label>
+                <textarea rows={2} value={quoteForm.additional_info} onChange={(e) => setQ('additional_info', e.target.value)} placeholder="Détails supplémentaires (meubles lourds, piano, objets fragiles...)" className={inputClass('')} />
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Annuler</button>
           <button onClick={handleSubmit} disabled={saving}
             className="flex items-center gap-2 px-5 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">

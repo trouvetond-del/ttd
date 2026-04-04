@@ -12,7 +12,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { email, firstname, lastname, token } = await req.json();
+    const { email, firstname, lastname, token, initialQuoteData } = await req.json();
 
     if (!email || !token) {
       return new Response(
@@ -78,14 +78,23 @@ Deno.serve(async (req: Request) => {
             </div>
 
             <div style="text-align: center;">
-              <a href="${invitationUrl}" class="button">Créer mon compte →</a>
+              <a href="${invitationUrl}" class="button">${initialQuoteData ? 'Confirmer ma demande et créer mon compte →' : 'Créer mon compte →'}</a>
             </div>
 
-            <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
-              <p style="margin: 0 0 8px;"><strong>🎬 Découvrez TTD en vidéo</strong></p>
-              <p style="margin: 0 0 10px; font-size: 14px; color: #92400E;">Découvrez comment fonctionne notre plateforme et comment nous sécurisons votre déménagement :</p>
-              <a href="https://www.youtube.com/watch?v=oBFzBZWohy4" style="display: inline-block; background: #EF4444; color: white !important; padding: 10px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">▶ Voir la vidéo de présentation</a>
+            ${initialQuoteData ? `
+            <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-left: 4px solid #22C55E; padding: 18px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+              <p style="margin: 0 0 12px; font-weight: bold; color: #166534; font-size: 15px;">📦 Votre demande de déménagement</p>
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <tr><td style="padding: 4px 0; color: #4B5563; width: 130px;"><strong>Départ :</strong></td><td style="padding: 4px 0; color: #111827;">${initialQuoteData.from_address || ''} ${initialQuoteData.from_city || ''} ${initialQuoteData.from_postal_code || ''}</td></tr>
+                <tr><td style="padding: 4px 0; color: #4B5563;"><strong>Arrivée :</strong></td><td style="padding: 4px 0; color: #111827;">${initialQuoteData.to_address || ''} ${initialQuoteData.to_city || ''} ${initialQuoteData.to_postal_code || ''}</td></tr>
+                ${initialQuoteData.moving_date ? `<tr><td style="padding: 4px 0; color: #4B5563;"><strong>Date :</strong></td><td style="padding: 4px 0; color: #111827;">${new Date(initialQuoteData.moving_date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>` : ''}
+                ${initialQuoteData.volume_m3 ? `<tr><td style="padding: 4px 0; color: #4B5563;"><strong>Volume :</strong></td><td style="padding: 4px 0; color: #111827;">${initialQuoteData.volume_m3} m³</td></tr>` : ''}
+                ${initialQuoteData.formula ? `<tr><td style="padding: 4px 0; color: #4B5563;"><strong>Formule :</strong></td><td style="padding: 4px 0; color: #111827;">${initialQuoteData.formula.toUpperCase()}</td></tr>` : ''}
+                ${initialQuoteData.from_home_size ? `<tr><td style="padding: 4px 0; color: #4B5563;"><strong>Logement départ :</strong></td><td style="padding: 4px 0; color: #111827;">${initialQuoteData.from_home_size} ${initialQuoteData.from_home_type || ''}</td></tr>` : ''}
+              </table>
+              <p style="margin: 12px 0 0; font-size: 12px; color: #6B7280;">En cliquant sur le bouton ci-dessus, vous pourrez confirmer ces informations et recevoir des devis de déménageurs professionnels vérifiés.</p>
             </div>
+            ` : ''}
 
             <div class="highlight-box">
               <p style="margin: 0;"><strong>✨ Pourquoi TrouveTonDéménageur ?</strong></p>
