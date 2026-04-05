@@ -9,6 +9,9 @@ import {
   RefreshCw,
   Upload,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { showToast } from '../../utils/toast';
 import ClientDetailModal from './ClientDetailModal';
@@ -57,6 +60,7 @@ export default function AdminUserManagement({
   const [viewingClientDetails, setViewingClientDetails] = useState<string | null>(null);
   const [viewingMoverDetails, setViewingMoverDetails] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [dateSortDirection, setDateSortDirection] = useState<'none' | 'asc' | 'desc'>('none');
 
   const loadUsers = async () => {
     setLoading(true);
@@ -269,6 +273,12 @@ export default function AdminUserManagement({
       });
     }
 
+    if (dateSortDirection === 'asc') {
+      filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    } else if (dateSortDirection === 'desc') {
+      filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
     setFilteredUsers(filtered);
   };
 
@@ -308,7 +318,7 @@ export default function AdminUserManagement({
 
   useEffect(() => {
     applyFilters(users);
-  }, [searchTerm, userStatus, users]);
+  }, [searchTerm, userStatus, users, dateSortDirection]);
 
   const handleSelectAll = () => {
     if (selectedUsers.size === filteredUsers.length) {
@@ -626,7 +636,15 @@ export default function AdminUserManagement({
                   Statut
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
-                  Date Inscription
+                  <button
+                    onClick={() => setDateSortDirection(d => d === 'none' ? 'desc' : d === 'desc' ? 'asc' : 'none')}
+                    className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-100 transition-colors"
+                  >
+                    Date Inscription
+                    {dateSortDirection === 'none' && <ArrowUpDown className="w-3 h-3" />}
+                    {dateSortDirection === 'desc' && <ArrowDown className="w-3 h-3 text-blue-500" />}
+                    {dateSortDirection === 'asc' && <ArrowUp className="w-3 h-3 text-blue-500" />}
+                  </button>
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                   Actions

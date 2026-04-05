@@ -32,8 +32,8 @@ export function ClientAuthChoice() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12 animate-fadeInUp">
             <img src="/logo.png" alt="TrouveTonDemenageur" className="h-20 w-auto mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              Bienvenue sur TrouveTonDemenageur
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-black mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent break-words">
+              Bienvenue sur Trouve Ton Demenageur
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Pour obtenir votre devis gratuit et sécurisé, veuillez vous connecter ou créer un compte

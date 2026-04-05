@@ -22,25 +22,33 @@ export function LandingPage() {
               <div className="animate-slideInLeft">
                 <img src="/ttd-logo.png" alt="TrouveTonDemenageur" className="h-32 sm:h-36" />
               </div>
-              <div className="flex items-center space-x-1 sm:space-x-2 animate-slideInRight">
+              <div className="flex items-center gap-1 sm:gap-2 animate-slideInRight">
+                {/* Comment ca marche — icon only on mobile, full text on sm+ */}
                 <button
                   onClick={scrollToHowItWorks}
-                  className="hidden md:flex items-center space-x-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm"
+                  title="Comment ça marche"
+                  className="flex items-center gap-1 px-2.5 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-xs sm:text-sm whitespace-nowrap"
                 >
-                  <span>Comment ca marche</span>
+                  <ChevronRight className="w-4 h-4 rotate-90 flex-shrink-0" />
+                  <span className="hidden sm:inline">Comment ça marche</span>
                 </button>
+                {/* Espace Client — icon + short label on mobile, full label on sm+ */}
                 <button
                   onClick={() => navigate('/client/auth-choice')}
-                  className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm sm:text-base"
+                  className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-xs sm:text-sm whitespace-nowrap"
                 >
-                  <LogIn className="w-4 h-4" />
-                  <span>Espace Client</span>
+                  <LogIn className="w-4 h-4 flex-shrink-0" />
+                  <span className="sm:hidden">Client</span>
+                  <span className="hidden sm:inline">Espace Client</span>
                 </button>
+                {/* Espace Demenageur — short label on mobile, full label on sm+ */}
                 <button
                   onClick={() => navigate('/mover/login')}
-                  className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm sm:text-base"
+                  className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-xs sm:text-sm whitespace-nowrap"
                 >
-                  <span>Espace Demenageur</span>
+                  <Truck className="w-4 h-4 flex-shrink-0" />
+                  <span className="sm:hidden">Pro</span>
+                  <span className="hidden sm:inline">Espace Déménageur</span>
                 </button>
               </div>
             </div>
@@ -156,7 +164,7 @@ export function LandingPage() {
                 <span className="text-white/80 text-xs">.fr</span>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">TrouveTonDemenageur</h3>
-              <p className="text-blue-200 text-sm leading-relaxed">Vérifie, accompagne et arbitre. Avant, pendant et après.</p>
+              <p className="text-blue-200 text-sm leading-relaxed">Vérifie, accompagne et arbitre. Avant, pendant et après votre déménagement.</p>
             </div>
 
             <div className="hidden md:flex items-center">
@@ -568,10 +576,7 @@ export function LandingPage() {
         </div>
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <div className="inline-flex items-center space-x-2 glass-effect px-5 py-2.5 rounded-full mb-8 animate-fadeIn border border-white/20">
-            <Sparkles className="w-5 h-5 text-yellow-300" />
-            <span className="text-sm font-semibold tracking-wide">COMMENCEZ MAINTENANT</span>
-          </div>
+         
 
           <h2 className="text-4xl md:text-6xl font-extrabold mb-8 leading-tight animate-fadeInUp">
             Votre prochain déménagement
@@ -581,7 +586,7 @@ export function LandingPage() {
           </h2>
 
           <p className="text-xl md:text-2xl text-blue-50/90 mb-12 leading-relaxed max-w-3xl mx-auto font-light animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
-            Recevez jusqu'à 3 devis de professionnels vérifiés. Protégés par l'IA. Sans engagement.
+            Recevez plusieurs devis de professionnels vérifiés. Sans engagement.
           </p>
 
           <button

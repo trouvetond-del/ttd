@@ -36,6 +36,7 @@ export default function QuoteBidModal({ quoteRequest, onClose, onSuccess }: Quot
   const [aiEstimation, setAiEstimation] = useState<AIEstimation | null>(null);
   const [estimationLoading, setEstimationLoading] = useState(false);
   const [validityDays, setValidityDays] = useState(30);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     const movingDate = new Date(quoteRequest.moving_date);
@@ -47,7 +48,6 @@ export default function QuoteBidModal({ quoteRequest, onClose, onSuccess }: Quot
       const price = parseFloat(proposedPrice);
       const analysis = validateQuotePricing(quoteRequest, price);
       setPriceAnalysis(analysis);
-      // Clear previous AI estimation when price changes - user must click Estimer again
       setAiEstimation(null);
     } else {
       setPriceAnalysis(null);
@@ -55,11 +55,34 @@ export default function QuoteBidModal({ quoteRequest, onClose, onSuccess }: Quot
     }
   }, [proposedPrice, quoteRequest]);
 
-  const handleEstimatePrice = () => {
-    if (proposedPrice && !isNaN(parseFloat(proposedPrice))) {
-      fetchAIEstimation(parseFloat(proposedPrice));
+  useEffect(() => {
+    if (!proposedPrice || isNaN(parseFloat(proposedPrice))) {
+      setCountdown(null);
+      return;
     }
-  };
+
+    setCountdown(3);
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(interval);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    const timer = setTimeout(() => {
+      fetchAIEstimation(parseFloat(proposedPrice));
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+      setCountdown(null);
+    };
+  }, [proposedPrice]);
 
   const fetchAIEstimation = async (price: number) => {
     setEstimationLoading(true);
@@ -350,26 +373,18 @@ export default function QuoteBidModal({ quoteRequest, onClose, onSuccess }: Quot
               placeholder="Ex: 1200.00"
               required
             />
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-xs text-slate-500">
-                Montant hors taxes que vous proposez — le client verra le prix TTC
-              </p>
-              <button
-                type="button"
-                onClick={handleEstimatePrice}
-                disabled={!proposedPrice || isNaN(parseFloat(proposedPrice)) || estimationLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ml-3"
-              >
-                {estimationLoading ? (
-                  <>
-                    <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                    Estimation...
-                  </>
-                ) : (
-                  '📊 Estimer le prix'
-                )}
-              </button>
-            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              Montant hors taxes que vous proposez — le client verra le prix TTC
+            </p>
+            {countdown !== null && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-indigo-600">
+                <svg className="animate-spin w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <span>Estimation du prix dans <strong>{countdown}s</strong>…</span>
+              </div>
+            )}
           </div>
 
           <div>

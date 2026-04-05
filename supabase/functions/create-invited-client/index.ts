@@ -211,7 +211,7 @@ Deno.serve(async (req: Request) => {
           user_type: 'admin',
           title: '🎉 Nouveau client inscrit via invitation',
           message: `${clientName} (${email}) a accepté l'invitation et créé son compte.`,
-          type: 'system',
+          type: 'new_invited_client',
           read: false,
         }));
         await supabase.from("notifications").insert(notifications);

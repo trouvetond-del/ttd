@@ -1,4 +1,4 @@
-import { CheckCircle, ArrowRight, Home, ArrowLeft } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export function MoverSignupSuccess() {
@@ -67,11 +67,11 @@ export function MoverSignupSuccess() {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/mover/dashboard')}
               className="w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition font-semibold text-lg flex items-center justify-center space-x-2"
             >
-              <Home className="w-5 h-5" />
-              <span>Retour à la page d'accueil</span>
+              <ArrowRight className="w-5 h-5" />
+              <span>Accéder à mon tableau de bord</span>
             </button>
 
             <p className="text-sm text-gray-500 mt-4">

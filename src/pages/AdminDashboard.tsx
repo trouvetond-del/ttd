@@ -356,6 +356,8 @@ export default function AdminDashboard() {
                   if (notification.related_id) {
                     setDisputeQuoteRequestId(notification.related_id);
                   }
+                } else if (notification.type === 'new_invited_client') {
+                  navigate('/admin/dashboard/users');
                 } else if (notification.type === 'mover_registration' || notification.type === 'new_mover' || notification.type === 'system') {
                   setActiveTab('pending_movers');
                 } else if (notification.type === 'mission_started' || notification.type === 'mission_completed') {
